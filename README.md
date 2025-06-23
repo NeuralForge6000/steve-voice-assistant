@@ -22,12 +22,12 @@ A secure, intelligent voice assistant powered by OpenAI Whisper and Google Gemin
 - **Smart Context Management**: Automatic history optimization
 
 ### 🔒 **Enterprise Security Features**
-- **🛡️ Prompt Injection Protection**: Advanced input sanitization
-- **🔐 Encrypted Data Storage**: All conversation history encrypted at rest
-- **🗂️ Secure File Handling**: Temporary files with secure deletion
-- **📊 Resource Monitoring**: System resource limits and monitoring
-- **🚨 Audit Logging**: Comprehensive security event logging
-- **⚡ API Rate Limiting**: Configurable usage limits and cost controls
+- **Prompt Injection Protection**: Advanced input sanitization
+- **Encrypted Data Storage**: All conversation history encrypted at rest
+- **Secure File Handling**: Temporary files with secure deletion
+- **Resource Monitoring**: System resource limits and monitoring
+- **Audit Logging**: Comprehensive security event logging
+- **API Rate Limiting**: Configurable usage limits and cost controls
 
 ### 🎵 **Enhanced User Experience**
 - **Soothing Audio Chimes**: Gentle, musical notification sounds
@@ -182,9 +182,11 @@ pip install -r requirements.txt
 - Ensure `GOOGLE_AI_API_KEY` environment variable is set
 - Verify your API key is valid and active
 
-**"CUDA not available"**
+**"CUDA or cuDNN .DLL not available"**
 - GPU acceleration will fallback to CPU automatically
-- Install CUDA toolkit for GPU support (optional)
+- Install CUDA toolkit for GPU support (https://developer.nvidia.com/cuda-downloads)
+- Install NVIDIA cuDNN for GPU support (https://developer.nvidia.com/cudnn)
+
 
 **Audio issues**
 - Check microphone permissions
@@ -216,13 +218,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For security-related issues, please see our [Security Policy](SECURITY.md).
 
-## 📚 Documentation
-
-- [Installation Guide](docs/installation.md)
-- [Configuration Reference](docs/configuration.md)
-- [Security Guide](docs/security.md)
-- [API Reference](docs/api.md)
-
 ## 🙏 Acknowledgments
 
 - [OpenAI Whisper](https://github.com/openai/whisper) - Speech recognition
@@ -238,7 +233,3 @@ For security-related issues, please see our [Security Policy](SECURITY.md).
 - [ ] Voice authentication
 - [ ] Local AI model support
 - [ ] Multi-language support
-
----
-
-**Made with ❤️ for secure, intelligent voice interaction**
