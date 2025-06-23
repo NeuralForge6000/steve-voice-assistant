@@ -9,9 +9,9 @@ A secure, intelligent voice assistant powered by OpenAI Whisper and Google Gemin
 ## ✨ Features
 
 ### 🌍 **Cross-Platform Support**
-- **🪟 Windows**: Native winsound audio + Windows voices (David, Mark, Zira)
-- **🍎 macOS**: PyAudio tones + macOS voices (Alex, Tom, Daniel) + Metal GPU acceleration
-- **🐧 Linux**: PyAudio tones + available system voices
+- **Windows**: Native winsound audio + Windows voices (David, Mark, Zira)
+- **macOS**: PyAudio tones + macOS voices (Alex, Tom, Daniel) + Metal GPU acceleration
+- **Linux**: PyAudio tones + available system voices
 
 ### 🎙️ **Core Voice Capabilities**
 - **Wake Word Detection**: Say "Hey Steve" to start conversations
@@ -27,12 +27,12 @@ A secure, intelligent voice assistant powered by OpenAI Whisper and Google Gemin
 - **Smart Context Management**: Automatic history optimization
 
 ### 🔒 **Enterprise Security Features**
-- **🛡️ Prompt Injection Protection**: Advanced input sanitization
-- **🔐 Encrypted Data Storage**: All conversation history encrypted at rest
-- **🗂️ Secure File Handling**: Temporary files with secure deletion
-- **📊 Resource Monitoring**: System resource limits and monitoring
-- **🚨 Audit Logging**: Comprehensive security event logging
-- **⚡ API Rate Limiting**: Configurable usage limits and cost controls
+- **Prompt Injection Protection**: Advanced input sanitization
+- **Encrypted Data Storage**: All conversation history encrypted at rest
+- **Secure File Handling**: Temporary files with secure deletion
+- **Resource Monitoring**: System resource limits and monitoring
+- **Audit Logging**: Comprehensive security event logging
+- **API Rate Limiting**: Configurable usage limits and cost controls
 
 ### 🎵 **Enhanced User Experience**
 - **Soothing Audio Chimes**: Gentle, musical notification sounds
@@ -79,10 +79,10 @@ chmod +x install_macos.sh
 - Microphone permissions (granted during first run)
 
 **macOS-Specific Features:**
-- 🍎 Native macOS voices (Alex, Tom, Daniel)
-- ⚡ Metal GPU acceleration for Whisper
-- 🎵 Native PyAudio audio chimes
-- 🔒 macOS security permissions integration
+- Native macOS voices (Alex, Tom, Daniel)
+- Metal GPU acceleration for Whisper
+- Native PyAudio audio chimes
+- macOS security permissions integration
 
 #### 🪟 **Windows Installation**
 ```bash
@@ -112,7 +112,7 @@ chmod +x quick_install.sh
 #### 📦 **Manual Installation (All Platforms)**
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/steve-voice-assistant.git
+git clone https://github.com/NeuralForge6000/steve-voice-assistant.git
 cd steve-voice-assistant
 
 # Install dependencies
@@ -323,12 +323,8 @@ For security-related issues, please see our [Security Policy](SECURITY.md).
 
 ## 📚 Documentation
 
-- [Installation Guide](docs/installation.md)
 - [macOS Setup Guide](MACOS_SETUP.md)
 - [**Compatibility Guide**](COMPATIBILITY.md) ⚠️ **Important: Python 3.13+ issues**
-- [Configuration Reference](docs/configuration.md)
-- [Security Guide](docs/security.md)
-- [API Reference](docs/api.md)
 
 ## 🙏 Acknowledgments
 
@@ -342,14 +338,10 @@ For security-related issues, please see our [Security Policy](SECURITY.md).
 - [x] ✅ **Cross-platform support** (Windows, macOS, Linux)
 - [x] ✅ **Enterprise-grade security features**
 - [x] ✅ **Real-time cost monitoring**
-- [ ] 🌐 **Web interface for remote access**
-- [ ] 🔌 **Plugin system for extensibility**
-- [ ] 🗣️ **Voice authentication and user profiles**
-- [ ] 🤖 **Local AI model support (offline mode)**
-- [ ] 🌍 **Multi-language support**
-- [ ] ☁️ **Cloud deployment options**
-- [ ] 📱 **Mobile companion app**
-
----
-
-**Made with ❤️ for secure, intelligent voice interaction**
+- [ ] **Web interface for remote access**
+- [ ] **Plugin system for extensibility**
+- [ ] **Voice authentication and user profiles**
+- [ ] **Local AI model support (offline mode)**
+- [ ] **Multi-language support**
+- [ ] **Cloud deployment options**
+- [ ] **Mobile companion app**
