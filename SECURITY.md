@@ -60,7 +60,7 @@ chmod 700 steve_security_*.log
 We take security vulnerabilities seriously. If you discover a security issue, please follow responsible disclosure:
 
 ### 📧 Contact Information
-- **Email**: [security@yourproject.com](mailto:security@yourproject.com)
+- **Email**: neuralforge6000[@]gmail[.]com
 - **Subject**: "SECURITY: [Brief Description]"
 
 ### 📋 What to Include
