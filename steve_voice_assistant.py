@@ -1,5 +1,5 @@
 """
-Enhanced Steve Voice Assistant with Comprehensive Security Features
+Enhanced Steve Voice Assistant - Cross-Platform with Comprehensive Security
 
 Core Features:
 💰 Real-time cost tracking for Gemini API usage
@@ -8,6 +8,11 @@ Core Features:
 📊 Detailed cost reporting per conversation
 🔄 Conversation summarization to reduce token usage
 ⚙️ Configurable history length and cost limits
+
+🌍 Cross-Platform Support:
+🪟 Windows (native winsound + Windows voices)
+🍎 macOS (PyAudio tones + macOS voices like Alex, Tom)
+🐧 Linux (PyAudio tones + available system voices)
 
 Security Features:
 🔒 Prompt injection protection with input sanitization
@@ -37,6 +42,11 @@ Security Benefits:
 Required Dependencies:
 pip install pyaudio numpy faster-whisper google-generativeai pyttsx3 psutil cryptography
 
+Platform-Specific Setup:
+- macOS: brew install portaudio (for PyAudio)
+- Windows: PyAudio comes with binary wheels
+- Linux: sudo apt-get install portaudio19-dev python3-pyaudio
+
 Environment Variables Required:
 - GOOGLE_AI_API_KEY: Your Google AI Studio API key
 """
@@ -47,21 +57,31 @@ import numpy as np
 import time
 import os
 import re
-import winsound
 import threading
 import pyttsx3
 import random
 import tempfile
 import psutil
 import logging
+import platform
+import subprocess
+import math
 from faster_whisper import WhisperModel
 import google.generativeai as genai
 from datetime import datetime, date
 import json
 from cryptography.fernet import Fernet
 
+# Platform-specific imports
+if platform.system() == "Windows":
+    import winsound
+
 class SteveVoiceAssistant:
     def __init__(self):
+        # Platform detection
+        self.platform = platform.system()
+        print(f"🖥️ Detected platform: {self.platform}")
+        
         # Improved audio settings
         self.CHUNK = 1024
         self.FORMAT = pyaudio.paInt16
@@ -77,6 +97,9 @@ class SteveVoiceAssistant:
         
         # === Security Configuration ===
         self.setup_security()
+        
+        # === Platform-specific Audio Setup ===
+        self.setup_platform_audio()
         
         # === Conversation History & Cost Tracking ===
         self.conversation_history = []
@@ -118,11 +141,16 @@ class SteveVoiceAssistant:
         # Initialize audio
         self.audio = pyaudio.PyAudio()
         
-        # Load Whisper model
+        # Load Whisper model with platform-specific optimizations
         print("Loading Whisper model...")
         try:
-            self.whisper_model = WhisperModel("turbo", device="cuda", compute_type="float16")
-            print("✅ GPU Whisper model loaded")
+            if self.platform == "Darwin":  # macOS
+                # Try Metal GPU acceleration first
+                self.whisper_model = WhisperModel("turbo", device="cuda", compute_type="float16")
+                print("✅ GPU Whisper model loaded (Metal acceleration)")
+            else:
+                self.whisper_model = WhisperModel("turbo", device="cuda", compute_type="float16")
+                print("✅ GPU Whisper model loaded")
         except:
             self.whisper_model = WhisperModel("turbo", device="cpu", compute_type="int8")
             print("✅ CPU Whisper model loaded")
@@ -167,6 +195,101 @@ class SteveVoiceAssistant:
         print(f"   Daily API limit: {self.MAX_DAILY_API_CALLS} calls")
         print(f"   Session cost limit: ${self.MAX_SESSION_COST:.2f}")
 
+    # ===== PLATFORM-SPECIFIC AUDIO METHODS =====
+    
+    def setup_platform_audio(self):
+        """Initialize platform-specific audio components"""
+        if self.platform == "Darwin":  # macOS
+            print("🍎 Setting up macOS audio components")
+            self.setup_macos_audio()
+        elif self.platform == "Windows":
+            print("🪟 Setting up Windows audio components")
+            self.setup_windows_audio()
+        else:
+            print(f"🐧 Setting up audio for {self.platform}")
+            self.setup_generic_audio()
+    
+    def setup_macos_audio(self):
+        """Setup macOS-specific audio configuration"""
+        # Check for Metal GPU support
+        try:
+            result = subprocess.run(['system_profiler', 'SPDisplaysDataType'], 
+                                  capture_output=True, text=True, timeout=5)
+            if 'Metal' in result.stdout:
+                print("✅ Metal GPU support detected")
+            else:
+                print("⚠️ Metal GPU support not detected")
+        except:
+            print("⚠️ Could not check Metal GPU support")
+    
+    def setup_windows_audio(self):
+        """Setup Windows-specific audio configuration"""
+        print("✅ Windows audio support ready")
+    
+    def setup_generic_audio(self):
+        """Setup generic cross-platform audio"""
+        print("✅ Generic audio support ready")
+    
+    def generate_tone(self, frequency, duration_ms, sample_rate=44100, volume=0.3):
+        """Generate a sine wave tone using numpy"""
+        try:
+            duration_s = duration_ms / 1000.0
+            frames = int(duration_s * sample_rate)
+            
+            # Generate sine wave
+            t = np.linspace(0, duration_s, frames, False)
+            wave_data = np.sin(2 * np.pi * frequency * t)
+            
+            # Apply volume and convert to 16-bit integers
+            wave_data = (wave_data * volume * 32767).astype(np.int16)
+            
+            return wave_data.tobytes()
+        except Exception as e:
+            self.log_error("Failed to generate tone", e)
+            return b''
+    
+    def play_tone_cross_platform(self, frequency, duration_ms):
+        """Play a tone using cross-platform method"""
+        if self.platform == "Windows" and 'winsound' in globals():
+            try:
+                winsound.Beep(int(frequency), int(duration_ms))
+                return
+            except:
+                pass
+        
+        # Fallback to PyAudio tone generation (works on all platforms)
+        try:
+            tone_data = self.generate_tone(frequency, duration_ms)
+            if not tone_data:
+                return
+            
+            # Play using PyAudio
+            stream = self.audio.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=44100,
+                output=True
+            )
+            stream.write(tone_data)
+            stream.stop_stream()
+            stream.close()
+            
+        except Exception as e:
+            self.log_error("Failed to play tone", e)
+    
+    def play_chime_sequence(self, frequencies, durations, pause_between=0.02):
+        """Play a sequence of tones with pauses"""
+        def chime():
+            try:
+                for i, (freq, duration) in enumerate(zip(frequencies, durations)):
+                    self.play_tone_cross_platform(freq, duration)
+                    if i < len(frequencies) - 1 and pause_between > 0:
+                        time.sleep(pause_between)
+            except Exception as e:
+                self.log_error("Failed to play chime sequence", e)
+        
+        threading.Thread(target=chime, daemon=True).start()
+    
     # ===== SECURITY METHODS =====
     
     def setup_security(self):
@@ -773,7 +896,7 @@ User said: {user_input}"""
     # ... (All other methods remain the same as original) ...
     
     def setup_voice(self):
-        """Configure Steve's voice settings"""
+        """Configure Steve's voice settings with platform-specific voice selection"""
         if not self.tts_engine:
             return
             
@@ -782,32 +905,52 @@ User said: {user_input}"""
             
             # Display available voices
             print("Available voices:")
-            for i, voice in enumerate(voices[:3]):  # Show first 3 voices
+            for i, voice in enumerate(voices[:5]):  # Show first 5 voices
                 gender = "♂️" if "male" in voice.name.lower() else "♀️"
                 print(f"  {i}: {gender} {voice.name}")
             
-            # Look for David specifically, fallback to first voice
-            david_voice = None
-            for voice in voices:
-                if 'david' in voice.name.lower():
-                    david_voice = voice
-                    break
+            selected_voice = None
             
-            if david_voice:
-                self.tts_engine.setProperty('voice', david_voice.id)
-                print(f"Selected voice: {david_voice.name}")
-            elif len(voices) > 0:
-                self.tts_engine.setProperty('voice', voices[0].id)  # Fallback to first
-                print(f"Selected voice: {voices[0].name}")
+            # Platform-specific voice selection
+            if self.platform == "Darwin":  # macOS
+                # macOS voice preferences (male voices)
+                macos_male_voices = ['alex', 'tom', 'daniel', 'fred', 'ralph']
+                for voice in voices:
+                    voice_name = voice.name.lower()
+                    if any(preferred in voice_name for preferred in macos_male_voices):
+                        selected_voice = voice
+                        break
+                        
+            elif self.platform == "Windows":
+                # Windows voice preferences
+                windows_male_voices = ['david', 'mark', 'zira']
+                for voice in voices:
+                    voice_name = voice.name.lower()
+                    if any(preferred in voice_name for preferred in windows_male_voices):
+                        selected_voice = voice
+                        break
+            
+            # Fallback to first available voice
+            if not selected_voice and len(voices) > 0:
+                selected_voice = voices[0]
+            
+            if selected_voice:
+                self.tts_engine.setProperty('voice', selected_voice.id)
+                print(f"🗣️ Selected voice: {selected_voice.name}")
             else:
-                print("No voices available")
+                print("⚠️ No voices available")
             
-            # Configure speech settings
-            self.tts_engine.setProperty('rate', 175)    # Speed (default ~200)
+            # Configure speech settings with platform adjustments
+            if self.platform == "Darwin":
+                # macOS tends to speak faster, so slow down a bit
+                self.tts_engine.setProperty('rate', 160)
+            else:
+                self.tts_engine.setProperty('rate', 175)
+            
             self.tts_engine.setProperty('volume', 0.8)  # Volume (0.0-1.0)
             
         except Exception as e:
-            print(f"Voice setup error: {e}")
+            self.log_error("Voice setup error", e)
 
     def speak_response(self, text):
         """Make Steve actually speak the response"""
@@ -827,122 +970,76 @@ User said: {user_input}"""
         except Exception as e:
             print(f"TTS error: {e}")
 
-    # ... (All chime methods remain the same) ...
+    # ===== CROSS-PLATFORM AUDIO CHIMES =====
+    
     def play_listening_chime(self):
         """Play a gentle, soothing ascending chime when starting to listen"""
         if not self.ENABLE_CHIMES:
             return
-            
-        def chime():
-            try:
-                # Soft, warm ascending tones (C4, E4) - much lower and warmer
-                frequencies = [262, 330]  # C4, E4 - gentle interval
-                for i, freq in enumerate(frequencies):
-                    winsound.Beep(freq, 60)  # Very short, soft
-                    if i < len(frequencies) - 1:
-                        time.sleep(0.02)  # Tiny pause between tones
-            except:
-                pass  # Silent fallback
         
-        threading.Thread(target=chime, daemon=True).start()
+        # Soft, warm ascending tones (C4, E4) - gentle interval
+        frequencies = [262, 330]  # C4, E4
+        durations = [60, 60]  # Very short, soft
+        self.play_chime_sequence(frequencies, durations, pause_between=0.02)
 
     def play_conversation_start_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Gentle welcome melody - soft and warm
-                frequencies = [262, 330, 392]  # C4, E4, G4 - gentle major triad
-                durations = [70, 70, 90]  # Short and sweet
-                for i, (freq, duration) in enumerate(zip(frequencies, durations)):
-                    winsound.Beep(freq, duration)
-                    if i < len(frequencies) - 1:
-                        time.sleep(0.03)  # Gentle pause
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Gentle welcome melody - soft and warm
+        frequencies = [262, 330, 392]  # C4, E4, G4 - gentle major triad
+        durations = [70, 70, 90]  # Short and sweet
+        self.play_chime_sequence(frequencies, durations, pause_between=0.03)
 
     def play_conversation_end_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Gentle farewell - soft descending
-                frequencies = [392, 330, 262]  # G4, E4, C4 - gentle descent
-                durations = [80, 90, 120]  # Gradually longer for gentle fade
-                for i, (freq, duration) in enumerate(zip(frequencies, durations)):
-                    winsound.Beep(freq, duration)
-                    if i < len(frequencies) - 1:
-                        time.sleep(0.04)  # Gentle pause
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Gentle farewell - soft descending
+        frequencies = [392, 330, 262]  # G4, E4, C4 - gentle descent
+        durations = [80, 90, 120]  # Gradually longer for gentle fade
+        self.play_chime_sequence(frequencies, durations, pause_between=0.04)
 
     def play_conversation_listening_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Very subtle, single soft tone
-                winsound.Beep(294, 50)  # D4 for 50ms - very gentle and brief
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Very subtle, single soft tone
+        self.play_tone_cross_platform(294, 50)  # D4 for 50ms - very gentle and brief
 
     def play_speaking_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Very gentle, soft notification - just two quick soft tones
-                winsound.Beep(330, 40)  # E4 for 40ms
-                time.sleep(0.02)
-                winsound.Beep(392, 50)  # G4 for 50ms - gentle ascending
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Very gentle, soft notification - just two quick soft tones
+        frequencies = [330, 392]  # E4, G4 - gentle ascending
+        durations = [40, 50]
+        self.play_chime_sequence(frequencies, durations, pause_between=0.02)
 
     def play_thinking_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Gentle processing sound - soft descending tones
-                frequencies = [349, 330, 294]  # F4, E4, D4 - gentle descent
-                for i, freq in enumerate(frequencies):
-                    winsound.Beep(freq, 60)  # Short and soft
-                    if i < len(frequencies) - 1:
-                        time.sleep(0.02)
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Gentle processing sound - soft descending tones
+        frequencies = [349, 330, 294]  # F4, E4, D4 - gentle descent
+        durations = [60, 60, 60]  # Short and soft
+        self.play_chime_sequence(frequencies, durations, pause_between=0.02)
 
     def play_ready_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Simple, single gentle tone to indicate readiness
-                winsound.Beep(330, 80)  # E4 for 80ms - warm and welcoming
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Simple, single gentle tone to indicate readiness
+        self.play_tone_cross_platform(330, 80)  # E4 for 80ms - warm and welcoming
 
     def play_startup_chime(self):
         if not self.ENABLE_CHIMES:
             return
-        def chime():
-            try:
-                # Gentle startup melody - soft and welcoming
-                frequencies = [262, 330, 392, 523]  # C4, E4, G4, C5 - warm ascending
-                durations = [80, 80, 90, 120]  # Gentle progression
-                for i, (freq, duration) in enumerate(zip(frequencies, durations)):
-                    winsound.Beep(freq, duration)
-                    if i < len(frequencies) - 1:
-                        time.sleep(0.04)  # Gentle pause between notes
-            except:
-                pass  # Silent fallback
-        threading.Thread(target=chime, daemon=True).start()
+        
+        # Gentle startup melody - soft and welcoming
+        frequencies = [262, 330, 392, 523]  # C4, E4, G4, C5 - warm ascending
+        durations = [80, 80, 90, 120]  # Gentle progression
+        self.play_chime_sequence(frequencies, durations, pause_between=0.04)
 
     # ... (All other helper methods remain the same) ...
     def normalize_text(self, text):

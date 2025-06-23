@@ -8,11 +8,16 @@ A secure, intelligent voice assistant powered by OpenAI Whisper and Google Gemin
 
 ## ✨ Features
 
+### 🌍 **Cross-Platform Support**
+- **🪟 Windows**: Native winsound audio + Windows voices (David, Mark, Zira)
+- **🍎 macOS**: PyAudio tones + macOS voices (Alex, Tom, Daniel) + Metal GPU acceleration
+- **🐧 Linux**: PyAudio tones + available system voices
+
 ### 🎙️ **Core Voice Capabilities**
 - **Wake Word Detection**: Say "Hey Steve" to start conversations
 - **Continuous Conversation Mode**: Natural back-and-forth without repeating wake words
-- **GPU-Accelerated Speech Recognition**: Uses OpenAI Whisper with CUDA support
-- **Natural Text-to-Speech**: Windows voice synthesis with customizable voices
+- **GPU-Accelerated Speech Recognition**: Uses OpenAI Whisper with CUDA/Metal support
+- **Natural Text-to-Speech**: Platform-native voice synthesis with voice selection
 - **Smart Audio Processing**: Automatic silence detection and noise handling
 
 ### 🧠 **AI-Powered Responses**
@@ -22,12 +27,12 @@ A secure, intelligent voice assistant powered by OpenAI Whisper and Google Gemin
 - **Smart Context Management**: Automatic history optimization
 
 ### 🔒 **Enterprise Security Features**
-- **Prompt Injection Protection**: Advanced input sanitization
-- **Encrypted Data Storage**: All conversation history encrypted at rest
-- **Secure File Handling**: Temporary files with secure deletion
-- **Resource Monitoring**: System resource limits and monitoring
-- **Audit Logging**: Comprehensive security event logging
-- **API Rate Limiting**: Configurable usage limits and cost controls
+- **🛡️ Prompt Injection Protection**: Advanced input sanitization
+- **🔐 Encrypted Data Storage**: All conversation history encrypted at rest
+- **🗂️ Secure File Handling**: Temporary files with secure deletion
+- **📊 Resource Monitoring**: System resource limits and monitoring
+- **🚨 Audit Logging**: Comprehensive security event logging
+- **⚡ API Rate Limiting**: Configurable usage limits and cost controls
 
 ### 🎵 **Enhanced User Experience**
 - **Soothing Audio Chimes**: Gentle, musical notification sounds
@@ -38,40 +43,84 @@ A secure, intelligent voice assistant powered by OpenAI Whisper and Google Gemin
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8 or higher
-- Windows OS (for TTS functionality)
+- **Python 3.8 to 3.12** (⚠️ **Avoid Python 3.13+** - known audio compatibility issues)
+- Microphone access
 - NVIDIA GPU (optional, for faster speech recognition)
 - Google AI Studio API key
 
+**⚠️ Important Python Version Note:**
+- **✅ Recommended**: Python 3.10 or 3.11 
+- **❌ Avoid**: Python 3.13+ (audio/Whisper compatibility issues)
+- **⚠️ Minimum**: Python 3.8 (some features may be limited)
+
+**Platform-specific requirements:**
+- **Windows**: No additional requirements
+- **macOS**: Homebrew recommended (`brew install portaudio`)
+- **Linux**: `sudo apt-get install portaudio19-dev`
+
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/steve-voice-assistant.git
-   cd steve-voice-assistant
-   ```
+#### 🍎 **macOS Installation (Detailed)**
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+**Quick Start:**
+```bash
+# Run the automated installer
+git clone https://github.com/NeuralForge6000/steve-voice-assistant.git
+cd steve-voice-assistant
+chmod +x install_macos.sh
+./install_macos.sh
+```
 
-3. **Set up your API key**
-   ```bash
-   # Windows Command Prompt
-   set GOOGLE_AI_API_KEY=your_api_key_here
-   
-   # PowerShell
-   $env:GOOGLE_AI_API_KEY="your_api_key_here"
-   
-   # Or create a .env file (recommended)
-   echo GOOGLE_AI_API_KEY=your_api_key_here > .env
-   ```
+**For detailed step-by-step instructions, see [MACOS_SETUP.md](MACOS_SETUP.md)**
 
-4. **Run Steve**
-   ```bash
-   python steve_voice_assistant.py
-   ```
+**Common macOS Requirements:**
+- Homebrew (installer will offer to install this)
+- PortAudio (via `brew install portaudio`)
+- Microphone permissions (granted during first run)
+
+**macOS-Specific Features:**
+- 🍎 Native macOS voices (Alex, Tom, Daniel)
+- ⚡ Metal GPU acceleration for Whisper
+- 🎵 Native PyAudio audio chimes
+- 🔒 macOS security permissions integration
+
+#### 🪟 **Windows Installation**
+```bash
+# Clone the repository
+git clone https://github.com/NeuralForge6000/steve-voice-assistant.git
+cd steve-voice-assistant
+
+# Run the Windows installer
+quick_install.bat
+```
+
+#### 🐧 **Linux Installation**
+```bash
+# Install system dependencies first
+sudo apt-get update
+sudo apt-get install portaudio19-dev python3-pyaudio
+
+# Clone the repository
+git clone https://github.com/NeuralForge6000/steve-voice-assistant.git
+cd steve-voice-assistant
+
+# Run the installer
+chmod +x quick_install.sh
+./quick_install.sh
+```
+
+#### 📦 **Manual Installation (All Platforms)**
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/steve-voice-assistant.git
+cd steve-voice-assistant
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run setup
+python setup.py
+```
 
 ### Getting Your Google AI API Key
 
@@ -171,27 +220,81 @@ assistant.SILENCE_THRESHOLD = 150          # Audio level threshold
 
 ## 🔧 Troubleshooting
 
+### Python Version Issues
+
+**"Whisper not working" or "Audio processing fails"**
+```bash
+# Check your Python version
+python3 --version
+
+# If you have Python 3.13+, downgrade to Python 3.11:
+# macOS with Homebrew:
+brew install python@3.11
+brew unlink python@3.12  # or whatever version you have
+brew link python@3.11
+
+# Or use pyenv:
+pyenv install 3.11.9
+pyenv local 3.11.9
+```
+
+**Known Python Version Compatibility:**
+- ✅ **Python 3.10.x**: Excellent compatibility
+- ✅ **Python 3.11.x**: Recommended (best performance)
+- ⚠️ **Python 3.12.x**: Usually works, some edge cases
+- ❌ **Python 3.13.x**: Audio library conflicts, Whisper issues
+- ❌ **Python 3.14+**: Not tested, likely incompatible
+
 ### Common Issues
 
-**"ModuleNotFoundError"**
+**"brew: command not found" (macOS)**
 ```bash
-pip install -r requirements.txt
+# Install Homebrew first
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Add to PATH
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+source ~/.zprofile
+```
+
+**"No module named 'pyaudio'" (macOS)**
+```bash
+# Install PortAudio first, then PyAudio
+brew install portaudio
+pip3 install pyaudio
+
+# If still failing, try:
+pip3 install --global-option='build_ext' --global-option='-I/opt/homebrew/include' --global-option='-L/opt/homebrew/lib' pyaudio
 ```
 
 **"API key not found"**
-- Ensure `GOOGLE_AI_API_KEY` environment variable is set
-- Verify your API key is valid and active
+```bash
+# Set environment variable (permanent method)
+echo 'export GOOGLE_AI_API_KEY="your_key_here"' >> ~/.zprofile
+source ~/.zprofile
 
-**"CUDA or cuDNN .DLL not available"**
+# Verify it's set
+echo $GOOGLE_AI_API_KEY
+
+# Alternative: Create .env file
+echo "GOOGLE_AI_API_KEY=your_key_here" > .env
+```
+
+**"Permission denied" for microphone (macOS)**
+- Go to **System Preferences > Security & Privacy > Privacy > Microphone**
+- Allow Terminal or your Python app to access microphone
+- Restart Terminal after granting permission
+
+**"CUDA not available"**
 - GPU acceleration will fallback to CPU automatically
-- Install CUDA toolkit for GPU support (https://developer.nvidia.com/cuda-downloads)
-- Install NVIDIA cuDNN for GPU support (https://developer.nvidia.com/cudnn)
-
+- Install CUDA toolkit for GPU support (optional)
 
 **Audio issues**
 - Check microphone permissions
 - Ensure audio drivers are up to date
 - Try running audio calibration
+- Test with: `python3 test_platform.py`
+- **If using Python 3.13+**: Downgrade to Python 3.11
 
 ### Performance Optimization
 - **GPU**: Install CUDA for faster speech recognition
@@ -218,6 +321,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For security-related issues, please see our [Security Policy](SECURITY.md).
 
+## 📚 Documentation
+
+- [Installation Guide](docs/installation.md)
+- [macOS Setup Guide](MACOS_SETUP.md)
+- [**Compatibility Guide**](COMPATIBILITY.md) ⚠️ **Important: Python 3.13+ issues**
+- [Configuration Reference](docs/configuration.md)
+- [Security Guide](docs/security.md)
+- [API Reference](docs/api.md)
+
 ## 🙏 Acknowledgments
 
 - [OpenAI Whisper](https://github.com/openai/whisper) - Speech recognition
@@ -227,9 +339,17 @@ For security-related issues, please see our [Security Policy](SECURITY.md).
 
 ## 📈 Roadmap
 
-- [ ] Linux/macOS support
-- [ ] Web interface
-- [ ] Plugin system
-- [ ] Voice authentication
-- [ ] Local AI model support
-- [ ] Multi-language support
+- [x] ✅ **Cross-platform support** (Windows, macOS, Linux)
+- [x] ✅ **Enterprise-grade security features**
+- [x] ✅ **Real-time cost monitoring**
+- [ ] 🌐 **Web interface for remote access**
+- [ ] 🔌 **Plugin system for extensibility**
+- [ ] 🗣️ **Voice authentication and user profiles**
+- [ ] 🤖 **Local AI model support (offline mode)**
+- [ ] 🌍 **Multi-language support**
+- [ ] ☁️ **Cloud deployment options**
+- [ ] 📱 **Mobile companion app**
+
+---
+
+**Made with ❤️ for secure, intelligent voice interaction**

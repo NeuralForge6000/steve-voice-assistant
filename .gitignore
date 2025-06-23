@@ -24,6 +24,7 @@ steve_cmd_*
 *.log
 logs/
 steve_security_*.log
+howto.txt
 
 # Python
 __pycache__/
